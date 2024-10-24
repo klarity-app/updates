@@ -1,0 +1,66 @@
+name: Update Release
+
+on:
+  repository_dispatch:
+    types: [Transfer Release to Updates Repository]
+  workflow_dispatch:  # Allows manual triggering
+
+jobs:
+  update-public-repo:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout public repo
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.FINE_GRAINED_PAT }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Download release asset
+        env:
+          GITHUB_TOKEN: ${{ secrets.FINE_GRAINED_PAT }}
+        run: |
+          release_tag="${{ github.event.client_payload.release.tag_name }}"
+          asset_url=$(curl -H "Authorization: token $GITHUB_TOKEN" \
+            -H "Accept: application/vnd.github.v3+json" \
+            https://api.github.com/repos/klarity-app/updates/releases/tags/$release_tag \
+            | jq -r '.assets[] | select(.name == "Klarity.dmg") | .browser_download_url')
+          
+          curl -L -H "Authorization: token $GITHUB_TOKEN" \
+            -H "Accept: application/octet-stream" \
+            -o Klarity.dmg "$asset_url"
+
+      - name: Generate signature
+        env:
+          SPARKLE_PRIVATE_KEY: ${{ secrets.SPARKLE_PRIVATE_KEY }}
+        run: |
+          echo "$SPARKLE_PRIVATE_KEY" > private_key.pem
+          npx @sparkle-project/sign-update Klarity.dmg > signature.txt
+
+      - name: Copy release files
+        run: |
+          mkdir -p releases/${{ github.event.client_payload.release.tag_name }}
+          mv Klarity.dmg releases/${{ github.event.client_payload.release.tag_name }}/
+
+      - name: Update appcast.xml
+        env:
+          SPARKLE_SIGNATURE: ${{ secrets.SPARKLE_SIGNATURE }}
+        run: |
+          export SPARKLE_SIGNATURE=$(cat signature.txt)
+          node scripts/update-appcast.js ${{ github.event.client_payload.release.tag_name }}
+
+      - name: Commit and push changes
+        env:
+          GITHUB_TOKEN: ${{ secrets.FINE_GRAINED_PAT }}
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add .
+          git commit -m "Update for release ${{ github.event.client_payload.release.tag_name }}"
+          git push
