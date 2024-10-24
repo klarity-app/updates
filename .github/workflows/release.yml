@@ -1,0 +1,41 @@
+name: Update Appcast
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # Runs daily at midnight
+  workflow_dispatch:  # Allows manual triggering
+
+jobs:
+  update-appcast:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout public repo
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm install
+        working-directory: scripts  # Set the working directory to the scripts folder
+
+      - name: Update appcast.xml
+        env:
+          SPARKLE_SIGNATURE: ${{ secrets.SPARKLE_SIGNATURE }}
+          GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+        run: |
+          node scripts/update-appcast.js
+
+      - name: Commit and push changes
+        env:
+          GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add appcast.xml
+          git commit -m "Recreate appcast with current releases"
+          git push https://x-access-token:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/klarity-app/updates.git HEAD:master
