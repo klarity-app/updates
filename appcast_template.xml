@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle">
+    <channel>
+        <title>Klarity App Updates</title>
+        <description>Most recent updates to Klarity</description>
+        <language>en</language>
+        <link>https://www.klarity.app</link>
+        <item>
+            <title>Version {{VERSION}}</title>
+            <link>https://www.klarity.app</link>
+            <sparkle:version>{{VERSION_NUMBER}}</sparkle:version>
+            <sparkle:shortVersionString>{{VERSION}}</sparkle:shortVersionString>
+            <sparkle:releaseNotesLink>
+                {{RELEASE_NOTES_LINK}}
+            </sparkle:releaseNotesLink>
+            <pubDate>{{PUBLISH_DATE}}</pubDate>
+            <enclosure url="{{DOWNLOAD_URL}}"
+                       sparkle:version="{{VERSION_NUMBER}}"
+                       sparkle:edSignature="{{ED_SIGNATURE}}"
+                       length="{{FILE_LENGTH}}"
+                       type="application/octet-stream" />
+        </item>
+    </channel>
+</rss>

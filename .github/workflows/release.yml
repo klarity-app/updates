@@ -1,0 +1,82 @@
+name: Sparkle Update
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  update-appcast:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+
+      - name: Install Dependencies
+        working-directory: scripts
+        run: |
+          npm install
+
+      - name: Setup Sparkle
+        run: |
+          SPARKLE_VERSION="2.5.1"
+          curl -L -o Sparkle.tar.xz "https://github.com/sparkle-project/Sparkle/releases/download/$SPARKLE_VERSION/Sparkle-$SPARKLE_VERSION.tar.xz"
+          tar -xf Sparkle.tar.xz
+          mkdir -p bin
+          cp Sparkle.framework/Versions/A/Resources/sign_update bin/
+          chmod +x bin/sign_update
+          echo "SPARKLE_BIN_PATH=$GITHUB_WORKSPACE/bin" >> $GITHUB_ENV
+
+      - name: Setup Signing Keys
+        env:
+          SPARKLE_PRIVATE_KEY: ${{ secrets.SPARKLE_PRIVATE_KEY }}
+        run: |
+          echo "$SPARKLE_PRIVATE_KEY" > EdDSA.private
+          chmod 600 EdDSA.private
+
+      - name: Process Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_ID: ${{ github.event.release.id }}
+        run: |
+          # Get release info
+          RELEASE_INFO=$(curl -H "Authorization: token $GITHUB_TOKEN" \
+            -H "Accept: application/vnd.github.v3+json" \
+            "https://api.github.com/repos/${{ github.repository }}/releases/$RELEASE_ID")
+          
+          # Extract version and asset URL
+          VERSION=$(echo "$RELEASE_INFO" | jq -r '.tag_name' | sed 's/^v//')
+          ASSET_URL=$(echo "$RELEASE_INFO" | jq -r '.assets[] | select(.name | endswith(".zip")) | .browser_download_url')
+          
+          # Download the asset
+          curl -L -o "Klarity-$VERSION-mac.zip" "$ASSET_URL"
+          
+          # Generate signature
+          SIGNATURE=$("$SPARKLE_BIN_PATH/sign_update" "Klarity-$VERSION-mac.zip" EdDSA.private)
+          
+          # Export variables
+          echo "SPARKLE_SIGNATURE=$SIGNATURE" >> $GITHUB_ENV
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+      - name: Update Appcast
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cd scripts
+          node update-appcast.js
+
+      - name: Commit and Push Appcast
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add appcast.xml
+          git commit -m "Update appcast.xml for version ${{ env.VERSION }}"
+          git push
