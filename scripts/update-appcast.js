@@ -46,7 +46,7 @@ async function updateAppcast(releases) {
     newItem.pubDate[0] = new Date(release.published_at).toUTCString();
     newItem.enclosure[0].$.url = `https://github.com/${GITHUB_REPO}/releases/download/${release.tag_name}/Klarity.zip`;
     newItem.enclosure[0].$['sparkle:version'] = versionNumber;
-    newItem.enclosure[0].$['sparkle:edSignature'] = process.env.SPARKLE_SIGNATURE;
+    newItem.enclosure[0].$['sparkle:edSignature'] = process.env.SPARKLE_SIGNATURE || '';
     newItem.enclosure[0].$.length = release.assets[0].size;
 
     existingItems.set(versionNumber, newItem);

@@ -28,7 +28,7 @@ jobs:
           SPARKLE_SIGNATURE: ${{ secrets.SPARKLE_SIGNATURE }}
           GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
         run: |
-          node scripts/update-appcast.js
+          SPARKLE_SIGNATURE=${{ secrets.SPARKLE_SIGNATURE }} node scripts/update-appcast.js
 
       - name: Commit and push changes
         env:
