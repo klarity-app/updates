@@ -38,4 +38,4 @@ jobs:
           git config user.email github-actions@github.com
           git add appcast.xml
           git commit -m "Recreate appcast with current releases"
-          git push https://x-access-token:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/klarity-app/updates.git HEAD:master
+          git push

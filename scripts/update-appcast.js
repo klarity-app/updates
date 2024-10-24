@@ -35,9 +35,9 @@ async function updateAppcast(releases) {
   }
 
   // Create or update items based on releases
-  const updatedItems = releases.map(release => {
+  releases.forEach(release => {
     const versionNumber = release.tag_name.replace('v', '').replace(/\./g, '');
-    const newItem = existingItems.get(versionNumber) || template.rss.channel[0].item[0];
+    const newItem = existingItems.get(versionNumber) || JSON.parse(JSON.stringify(template.rss.channel[0].item[0]));
 
     newItem.title[0] = `Version ${release.tag_name}`;
     newItem['sparkle:version'][0] = versionNumber;
@@ -49,11 +49,11 @@ async function updateAppcast(releases) {
     newItem.enclosure[0].$['sparkle:edSignature'] = process.env.SPARKLE_SIGNATURE;
     newItem.enclosure[0].$.length = release.assets[0].size;
 
-    return newItem;
+    existingItems.set(versionNumber, newItem);
   });
 
   // Update the channel with the new items
-  appcast.rss.channel[0].item = updatedItems;
+  appcast.rss.channel[0].item = Array.from(existingItems.values());
 
   // Convert back to XML
   const builder = new xml2js.Builder();
