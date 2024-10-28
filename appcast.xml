@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle">
+  <channel>
+    <title>Klarity App Updates</title>
+    <description>Most recent updates to Klarity</description>
+    <language>en</language>
+    <link>https://www.klarity.app</link>
+    <item>
+      <title>Version 0.0.1-dev.2</title>
+      <link>https://www.klarity.app</link>
+      <sparkle:version>1732719614636</sparkle:version>
+      <sparkle:shortVersionString>0.0.1-dev.2</sparkle:shortVersionString>
+      <sparkle:releaseNotesLink>https://github.com/klarity-app/updates/releases/download/v0.0.1-dev.2/CHANGELOG.md</sparkle:releaseNotesLink>
+      <pubDate>Wed, 27 Nov 2024 15:00:14 GMT</pubDate>
+      <enclosure url="https://github.com/klarity-app/updates/releases/download/v0.0.1-dev.2/klarity-macos.zip" sparkle:version="1732719614636" sparkle:edSignature="ZKQ76FGPcy/FbtYx8Of6hnWfakC8ycIf9NXFtUJoymA91dC5Q17fD0b8e/eLzrUgUyjwTm1N43NT77nQcbR2BQ==" length="50407114"/>
+    </item>
+    <item>
+      <title>Version 0.0.1-dev.1</title>
+      <link>https://www.klarity.app</link>
+      <sparkle:version>1730126964945</sparkle:version>
+      <sparkle:shortVersionString>0.0.1-dev.1</sparkle:shortVersionString>
+      <sparkle:releaseNotesLink>https://github.com/klarity-app/updates/releases/download/v0.0.1-dev.1/CHANGELOG.md</sparkle:releaseNotesLink>
+      <pubDate>Mon, 28 Oct 2024 14:49:24 GMT</pubDate>
+      <enclosure url="https://github.com/klarity-app/updates/releases/download/v0.0.1-dev.1/klarity-macos.zip" sparkle:version="1730126964945" sparkle:edSignature="QshaelaJEIXOSOF/gfY3YZ++fJ/YtkwzOvu+vifr9nzBi5r51d2osI67r2Vn+yQbGS8jeFJ9OgfTQ8z1Q9i8BA==" length="50776071"/>
+    </item>
+  </channel>
+</rss>
